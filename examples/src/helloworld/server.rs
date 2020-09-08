@@ -16,10 +16,8 @@ impl Greeter for MyGreeter {
         &self,
         request: Request<HelloRequest>,
     ) -> Result<Response<HelloReply>, Status> {
-        println!("Got a request from {:?}", request.remote_addr());
-
         let reply = hello_world::HelloReply {
-            message: format!("Hello {}!", request.into_inner().name),
+            message: format!("Hello {}", request.into_inner().name),
         };
         Ok(Response::new(reply))
     }
