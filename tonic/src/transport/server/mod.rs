@@ -386,6 +386,7 @@ impl Server {
         };
 
         let server = hyper::Server::builder(incoming)
+            .executor(LocalExec)
             .http2_only(true)
             .http2_initial_connection_window_size(init_connection_window_size)
             .http2_initial_stream_window_size(init_stream_window_size)
@@ -405,6 +406,19 @@ impl Server {
         }
 
         Ok(())
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+struct LocalExec;
+
+impl<F> hyper::rt::Executor<F> for LocalExec
+where
+    F: std::future::Future + 'static, // not requiring `Send`
+{
+    fn execute(&self, fut: F) {
+        // This will spawn into the currently running `LocalSet`.
+        tokio::task::spawn_local(fut);
     }
 }
 
